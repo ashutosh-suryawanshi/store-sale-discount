@@ -11,7 +11,6 @@ const readline = require('readline').createInterface({
 });
 
 class Billing {
-
   constructor(itemsBought) {
     this.itemsBought = itemsBought;
     this.itemCounts = this.itemsBought.reduce((acc, item) => {
@@ -21,17 +20,44 @@ class Billing {
   }
 
   listAllBoughtItems() {
-    // List all the items bought
+    console.log('\n\nItem\t\tQuantity\tPrice');
+    console.log('--------------------------------------');
+    Object.entries(this.itemCounts).forEach(([item, quantity]) => {
+      const price = this.calculatePriceForItem(item, quantity, true).toFixed(2);
+      console.log(`${item[0].toUpperCase() + item.slice(1)}\t\t${quantity}\t\t$${price}`);
+    });
+  }
+
+  // Calculate price per item
+  static calculatePriceForItem(itemName, quantity, withDiscount) {
+    const inventoryItem = itemsInventory.find((i) => i.itemName.toLowerCase() === itemName);
+    if (!inventoryItem) return 0;
+
+    const { itemUnitPrice, itemSalePrice } = inventoryItem;
+    let price = 0;
+
+    if (withDiscount) {
+      if (itemSalePrice) {
+        const { saleQuantity, salePrice } = itemSalePrice;
+        const discountBatches = Math.floor(quantity / saleQuantity);
+        const remainingItems = quantity % saleQuantity;
+        price = (discountBatches * salePrice) + (remainingItems * itemUnitPrice);
+      } else {
+        price = quantity * itemUnitPrice;
+      }
+    } else {
+      price = quantity * itemUnitPrice;
+    }
+    return price;
   }
 
   // Calculate total price of all the purchased items
   calculateTotalPriceWithoutDiscount() {
     let totalWithoutDiscount = 0;
     Object.entries(this.itemCounts).forEach(([item, quantity]) => {
-      const inventoryItem = itemsInventory.find(i => i.itemName.toLowerCase() === item);
+      const inventoryItem = itemsInventory.find((i) => i.itemName.toLowerCase() === item);
       if (!inventoryItem) return;
-      const unitPrice = inventoryItem.itemUnitPrice;
-      totalWithoutDiscount += unitPrice * quantity;
+      totalWithoutDiscount += this.calculatePriceForItem(item, quantity, false);
     });
     return totalWithoutDiscount;
   }
@@ -40,18 +66,9 @@ class Billing {
   calculateTotalPriceWithDiscount() {
     let totalWithDiscount = 0;
     Object.entries(this.itemCounts).forEach(([item, quantity]) => {
-      const inventoryItem = itemsInventory.find(i => i.itemName.toLowerCase() === item);
+      const inventoryItem = itemsInventory.find((i) => i.itemName.toLowerCase() === item);
       if (!inventoryItem) return;
-
-      const unitPrice = inventoryItem.itemUnitPrice;
-      if (inventoryItem.itemSalePrice) {
-        const { saleQuantity, salePrice } = inventoryItem.itemSalePrice;
-        const discountBatches = Math.floor(quantity / saleQuantity);
-        const remainingItems = quantity % saleQuantity;
-        totalWithDiscount += (discountBatches * salePrice) + (remainingItems * unitPrice);
-      } else {
-        totalWithDiscount += unitPrice * quantity;
-      }
+      totalWithDiscount += this.calculatePriceForItem(item, quantity, true);
     });
     return totalWithDiscount;
   }
@@ -68,11 +85,13 @@ readline.question('Please enter all the items purchased separated by a comma ', 
   const itemsBought = items.split(',').map((item) => item.trim());
   const billing = new Billing(itemsBought);
 
+  billing.listAllBoughtItems();
+
   const totalPriceWithDiscount = billing.calculateTotalPriceWithDiscount();
-  console.log('Total price: ', totalPriceWithDiscount);
+  console.log(`Total price : $${totalPriceWithDiscount.toFixed(2)}`);
 
   const savedPrice = billing.calculateSavedPrice();
-  console.log('Total discount: ', savedPrice);
+  console.log(`You saved $${savedPrice.toFixed(2)} today.`);
 
   readline.close();
 });
