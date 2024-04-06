@@ -19,21 +19,21 @@ class Billing {
 
   // Calculate total price of all the purchased items
   calculateTotalPrice(){
-    totalPrice = 0
+    let totalPrice = 0
     // Calculate total price here
     return totalPrice
   }
 
   // Calculate total discounted price of all the purchased items
   calculateTotalDiscountedPrice(){
-    totalDiscountedPrice = 0
+    let totalDiscountedPrice = 0
     // Calculate total price here
     return totalDiscountedPrice
   }
   
   // Calculate total saved price
   calculateSavedPrice(){
-    totalSaved = calculateTotalPrice() - calculateTotalDiscountedPrice()
+    const totalSaved = this.calculateTotalPrice() - this.calculateTotalDiscountedPrice()
     return totalSaved
   }
 }
@@ -44,10 +44,10 @@ readline.question(`Please enter all the items purchased separated by a comma `, 
   const itemsBought = items.split(",").map(item => item.trim())
   const billing = new Billing(itemsBought)
 
-  totalPrice = billing.calculateTotalPrice()
+  const totalPrice = billing.calculateTotalPrice()
   console.log("Total price: ", totalPrice)
 
-  totalDiscount = billing.calculateDiscountPrice()
+  const totalDiscount = billing.calculateSavedPrice()
   console.log("Total discount: ", totalDiscount)
 
   readline.close();
