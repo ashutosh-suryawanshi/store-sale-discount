@@ -20,18 +20,8 @@ class Billing {
     }, {});
   }
 
-  // List all the bought items and their prices as per the sale price
-  listAllBoughtItems() {
-    console.log('\n\nItem\t\tQuantity\tPrice');
-    console.log('--------------------------------------');
-    Object.entries(this.itemCounts).forEach(([item, quantity]) => {
-      const price = this.calculatePriceForItem(item, quantity, true).toFixed(2);
-      console.log(`${item[0].toUpperCase() + item.slice(1)}\t\t${quantity}\t\t$${price}`);
-    });
-  }
-
   // Calculate price per item
-  static calculatePriceForItem(itemName, quantity, withSale) {
+  calculatePriceForItem(itemName, quantity, withSale) {
     const inventoryItem = this.inventory.find((i) => i.itemName.toLowerCase() === itemName);
     if (!inventoryItem) return 0;
 
@@ -51,6 +41,16 @@ class Billing {
       price = quantity * itemUnitPrice;
     }
     return price;
+  }
+
+  // List all the bought items and their prices as per the sale price
+  listAllBoughtItems() {
+    console.log('\nItem\t\tQuantity\tPrice');
+    console.log('--------------------------------------');
+    Object.entries(this.itemCounts).forEach(([item, quantity]) => {
+      const price = this.calculatePriceForItem(item, quantity, true).toFixed(2);
+      console.log(`${item[0].toUpperCase() + item.slice(1)}\t\t${quantity}\t\t$${price}`);
+    });
   }
 
   // Calculate total price of all the purchased items without sale price
@@ -90,7 +90,7 @@ readline.question('Please enter all the items purchased separated by a comma ', 
   billing.listAllBoughtItems();
 
   const totalPriceWithSale = billing.calculateTotalPriceWithSale();
-  console.log(`Total price : $${totalPriceWithSale.toFixed(2)}`);
+  console.log(`\nTotal price : $${totalPriceWithSale.toFixed(2)}`);
 
   const savedPrice = billing.calculateSavedPrice();
   console.log(`You saved $${savedPrice.toFixed(2)} today.`);
