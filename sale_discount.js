@@ -17,8 +17,12 @@ class Billing {
 
   // Calculate total price of all the purchased items
   calculateTotalPrice() {
-    const totalPrice = 0;
-    // Calculate total price here
+    let totalPrice = 0;
+    this.itemsBought.forEach(
+      (item) => totalPrice += itemsInventory.find(
+        (itemInventory) => itemInventory.itemName.toLowerCase() === item.toLowerCase(),
+      ).itemUnitPrice,
+    );
     return totalPrice;
   }
 
