@@ -11,31 +11,54 @@ const readline = require('readline').createInterface({
 });
 
 class Billing {
+
   constructor(itemsBought) {
     this.itemsBought = itemsBought;
+    this.itemCounts = this.itemsBought.reduce((acc, item) => {
+      acc[item] = acc[item] ? acc[item] + 1 : 1;
+      return acc;
+    }, {});
+  }
+
+  listAllBoughtItems() {
+    // List all the items bought
   }
 
   // Calculate total price of all the purchased items
-  calculateTotalPrice() {
-    let totalPrice = 0;
-    this.itemsBought.forEach(
-      (item) => totalPrice += itemsInventory.find(
-        (itemInventory) => itemInventory.itemName.toLowerCase() === item.toLowerCase(),
-      ).itemUnitPrice,
-    );
-    return totalPrice;
+  calculateTotalPriceWithoutDiscount() {
+    let totalWithoutDiscount = 0;
+    Object.entries(this.itemCounts).forEach(([item, quantity]) => {
+      const inventoryItem = itemsInventory.find(i => i.itemName.toLowerCase() === item);
+      if (!inventoryItem) return;
+      const unitPrice = inventoryItem.itemUnitPrice;
+      totalWithoutDiscount += unitPrice * quantity;
+    });
+    return totalWithoutDiscount;
   }
 
   // Calculate total discounted price of all the purchased items
-  calculateTotalDiscountedPrice() {
-    const totalDiscountedPrice = 0;
-    // Calculate total price here
-    return totalDiscountedPrice;
+  calculateTotalPriceWithDiscount() {
+    let totalWithDiscount = 0;
+    Object.entries(this.itemCounts).forEach(([item, quantity]) => {
+      const inventoryItem = itemsInventory.find(i => i.itemName.toLowerCase() === item);
+      if (!inventoryItem) return;
+
+      const unitPrice = inventoryItem.itemUnitPrice;
+      if (inventoryItem.itemSalePrice) {
+        const { saleQuantity, salePrice } = inventoryItem.itemSalePrice;
+        const discountBatches = Math.floor(quantity / saleQuantity);
+        const remainingItems = quantity % saleQuantity;
+        totalWithDiscount += (discountBatches * salePrice) + (remainingItems * unitPrice);
+      } else {
+        totalWithDiscount += unitPrice * quantity;
+      }
+    });
+    return totalWithDiscount;
   }
 
   // Calculate total saved price
   calculateSavedPrice() {
-    const totalSaved = this.calculateTotalPrice() - this.calculateTotalDiscountedPrice();
+    const totalSaved = this.calculateTotalPriceWithoutDiscount() - this.calculateTotalPriceWithDiscount();
     return totalSaved;
   }
 }
@@ -45,11 +68,11 @@ readline.question('Please enter all the items purchased separated by a comma ', 
   const itemsBought = items.split(',').map((item) => item.trim());
   const billing = new Billing(itemsBought);
 
-  const totalPrice = billing.calculateTotalPrice();
-  console.log('Total price: ', totalPrice);
+  const totalPriceWithDiscount = billing.calculateTotalPriceWithDiscount();
+  console.log('Total price: ', totalPriceWithDiscount);
 
-  const totalDiscount = billing.calculateSavedPrice();
-  console.log('Total discount: ', totalDiscount);
+  const savedPrice = billing.calculateSavedPrice();
+  console.log('Total discount: ', savedPrice);
 
   readline.close();
 });
