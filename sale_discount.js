@@ -1,7 +1,10 @@
-import Billing from './Billing';
-import BillingInputHandler from './BillingInputHandler';
-import BillingOutputHandler from './BillingOutputHandler';
+// Imports
+import readline from 'readline';
+import Billing from './Billing.mjs';
+import BillingInputHandler from './BillingInputHandler.mjs';
+import BillingOutputHandler from './BillingOutputHandler.mjs';
 
+// Item invertory - Static
 const itemsInventory = [
   { itemName: 'Milk', itemUnitPrice: 3.97, itemSalePrice: { saleQuantity: 2, salePrice: 5.00 } },
   { itemName: 'Bread', itemUnitPrice: 2.17, itemSalePrice: { saleQuantity: 3, salePrice: 6.00 } },
@@ -9,12 +12,14 @@ const itemsInventory = [
   { itemName: 'Apple', itemUnitPrice: 0.89 },
 ];
 
-const readline = require('readline').createInterface({
+// Create interface for reading user input
+const readlineInterface = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-const billingInputHandler = new BillingInputHandler(readline);
+// Create an object for hadling user input
+const billingInputHandler = new BillingInputHandler(readlineInterface);
 
 // Ask user to enter list of purchased items
 billingInputHandler.question('Please enter all the items purchased separated by a comma ', (items) => {
@@ -25,5 +30,5 @@ billingInputHandler.question('Please enter all the items purchased separated by 
   billingOutput.listAllBoughtItems();
   billingOutput.displayTotalAndSavedPrice();
 
-  readline.close();
+  readlineInterface.close();
 });
