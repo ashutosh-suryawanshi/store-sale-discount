@@ -77,7 +77,25 @@ class Billing {
   }
 }
 
-class BillingOutputOperations {
+class BillingInputHandler {
+  constructor(readline) {
+      this.readline = readline;
+  }
+
+  // Ask question to the user
+  question(query, callback) {
+      this.readline.question(query, (input) => {
+          callback(input);
+      });
+  }
+
+  // Close the readline input
+  close() {
+      this.readline.close();
+  }
+}
+
+class BillingOutputHandler {
   constructor(billing) {
     this.billing = billing;
   }
@@ -103,14 +121,16 @@ class BillingOutputOperations {
   }
 }
 
+const billingInputHandler = new BillingInputHandler(readline);
+
 // Ask user to enter list of purchased items
-readline.question('Please enter all the items purchased separated by a comma ', (items) => {
+billingInputHandler.question('Please enter all the items purchased separated by a comma ', (items) => {
   const itemsBought = items.split(',').map((item) => item.trim());
   const billing = new Billing(itemsBought, itemsInventory);
-  const inputOutputOperations = new BillingOutputOperations(billing);
+  const billingOutput = new BillingOutputHandler(billing);
 
-  inputOutputOperations.listAllBoughtItems();
-  inputOutputOperations.displayTotalAndSavedPrice();
+  billingOutput.listAllBoughtItems();
+  billingOutput.displayTotalAndSavedPrice();
 
   readline.close();
 });
